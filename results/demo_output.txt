@@ -1,0 +1,50 @@
+
+================================================================
+1. Worked example with small primes (p = 61, q = 53, e = 17)
+================================================================
+n = 3233, φ(n) = 3120, d = e⁻¹ mod φ(n) = 2753
+check: e·d mod φ(n) = 1
+encrypt m = 65: c = 65^17 mod 3233 = 2790
+decrypt:        m = 2790^2753 mod 3233 = 65
+
+================================================================
+2. The group (ℤ/3233ℤ)* behind it
+================================================================
+|(ℤ/3233ℤ)*| = φ(3233) = 3120
+Carmichael λ(3233) = 780  (every element order divides it)
+order of 2 = 780, order of 65 = 780
+Euler's theorem holds for all units: True
+m ↦ m^17 permutes all of ℤ/3233ℤ (units and non-units): True
+
+================================================================
+3. Real-size key (2048-bit modulus)
+================================================================
+key generated in 0.71 s   (e = 65537)
+n = 2545720439645562794423860362458698986125…  (2048 bits)
+
+plaintext : Harvest now, decrypt later.
+ciphertext: 7993146272255827474519707005441909355370…
+decrypted : Harvest now, decrypt later.
+
+decryption, 20 runs: plain 0.668 s vs CRT 0.213 s  (3.1× faster)
+
+signature valid: True
+tampered message accepted: False
+
+================================================================
+4. Why key size matters: factoring small moduli
+================================================================
+32-bit n = 3271868531: factored as 62053 × 52727 in 0.0002 s → private key recovered
+48-bit n = 242147884966523: factored as 16461043 × 14710361 in 0.0005 s → private key recovered
+64-bit n = 15820762361999471533: factored as 3943326227 × 4012034879 in 0.0375 s → private key recovered
+
+================================================================
+5. Shor's reduction: factoring via order finding
+================================================================
+n = 3233. Try bases a and look at the order r of a modulo n:
+  a =  2: r = 780  a^(r/2) = 3232 ≡ −1 (mod n) → only trivial factors, retry
+  a = 13: r =  39  r is odd → a^(r/2) undefined, retry
+  a =  3: r = 260  a^(r/2) = 794; gcd(794 − 1, n) = 61, gcd(794 + 1, n) = 53
+→ 3233 = 61 × 53
+A quantum computer finds r in polynomial time; here it is brute-forced,
+which is exponential — exactly the gap Shor's algorithm closes.

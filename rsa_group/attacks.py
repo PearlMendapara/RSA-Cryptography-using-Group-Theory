@@ -3,6 +3,8 @@
 * trial_division / pollard_rho — classical factoring. Both are exponential in
   the bit length, which is why small moduli fall instantly and 2048-bit ones
   do not.
+* fermat_factor — breaks keys of any size when p and q are too close together,
+  which is why key generation must pick the two primes independently.
 * break_rsa — once n is factored, φ(n) and the private exponent d follow
   immediately (report §2.5).
 * shor_classical — the classical half of Shor's algorithm (report §3.2–3.3):
@@ -73,6 +75,41 @@ def pollard_rho(n: int, seed: int = 0) -> int:
                 g = gcd(abs(x - ys), n)
         if g != n:
             return g
+
+
+def _isqrt(n: int) -> int:
+    """Floor of √n by Newton's method on integers."""
+    if n < 2:
+        return n
+    x = 1 << ((n.bit_length() + 1) // 2)           # start above √n
+    while True:
+        y = (x + n // x) // 2
+        if y >= x:
+            return x
+        x = y
+
+
+def fermat_factor(n: int, max_steps: int = 1_000_000) -> int:
+    """A factor of odd composite n by Fermat's method: find n = a² − b² = (a − b)(a + b).
+
+    Starts at a = ⌈√n⌉ and steps a upward until a² − n is a perfect square.
+    If n = pq, the answer is a = (p + q)/2, reached after about
+    (√p − √q)² / (2√n) steps — a single step when p and q share their top
+    half of bits, however large n is.
+    """
+    if n % 2 == 0:
+        return 2
+    a = _isqrt(n)
+    if a * a == n:
+        return a
+    a += 1
+    for _ in range(max_steps):
+        b2 = a * a - n
+        b = _isqrt(b2)
+        if b * b == b2:
+            return a - b
+        a += 1
+    raise RuntimeError(f"p and q are not close enough for Fermat's method on {n}")
 
 
 def break_rsa(public: PublicKey, factor=pollard_rho) -> PrivateKey:

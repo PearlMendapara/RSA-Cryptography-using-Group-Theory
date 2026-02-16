@@ -160,6 +160,29 @@ def test_pollard_rho_breaks_small_keys(bits):
     assert rsa.decrypt(rsa.encrypt(m, pub), recovered) == m
 
 
+@pytest.mark.parametrize("n", [3233, 5959, 10403, 1022117])
+def test_fermat_factor_small(n):
+    p = attacks.fermat_factor(n)
+    assert 1 < p < n and n % p == 0
+
+
+def test_fermat_breaks_2048_bit_key_with_close_primes():
+    # p and q differ only in their low bits, so a = (p + q)/2 is found at once
+    p = nt.random_prime(1024)
+    q = p + 2
+    while not nt.is_probable_prime(q):
+        q += 2
+    pub, priv = rsa.keypair_from_primes(p, q)
+    recovered = attacks.break_rsa(pub, factor=attacks.fermat_factor)
+    assert {recovered.p, recovered.q} == {p, q}
+    assert rsa.decrypt(rsa.encrypt(42, pub), recovered) == 42
+
+
+def test_fermat_gives_up_on_well_separated_primes():
+    with pytest.raises(RuntimeError):
+        attacks.fermat_factor(1_000_003 * 999_999_937, max_steps=100)
+
+
 @pytest.mark.parametrize("n", [15, 21, 35, 77, 91, 143, 221, 3233])
 def test_shor_reduction_factors(n):
     (p, q), attempts = attacks.shor_classical(n, seed=1)

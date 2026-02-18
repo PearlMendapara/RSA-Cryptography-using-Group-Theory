@@ -35,7 +35,7 @@ exhaustively for n = 3233.
 | `number_theory.py` | Euclid and extended Euclid (Bézout coefficients), modular inverse, square-and-multiply exponentiation, Miller–Rabin primality test, random prime generation, Euler's φ |
 | `rsa.py` | Key generation (report §2.2), encryption and decryption (§2.3), CRT decryption, text encoding, SHA-256 signatures (§2.4) |
 | `group_theory.py` | Units of ℤ/nℤ, element orders, Carmichael λ(n), cyclicity, checks of Euler's and Lagrange's theorems |
-| `attacks.py` | Trial division, Pollard's rho, private-key recovery from the public key (§2.5), and Shor's reduction from factoring to order finding (§3.2–3.3) |
+| `attacks.py` | Trial division, Pollard's rho, Fermat's method for close primes, private-key recovery from the public key (§2.5), and Shor's reduction from factoring to order finding (§3.2–3.3) |
 
 Every algorithm is written out by hand. The code does not use Python's
 built-in `pow(a, -1, n)` or a crypto library, so each line can be traced back
@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 python demo.py               # full walkthrough with a 2048-bit key
 python demo.py --bits 512    # quicker
-pytest -q                    # 247 tests
+pytest -q                    # 253 tests
 python benchmarks/benchmark.py
 ```
 
@@ -117,7 +117,9 @@ rsa.verify(b"message", sig, public)             # True
 - **Group theory.** Euler's and Lagrange's theorems hold on ten moduli, and
   m ↦ mᵉ permutes all of ℤ/nℤ.
 - **Attacks.** Pollard's rho recovers working private keys for 32–64-bit moduli,
-  and Shor's reduction factors eight small semiprimes.
+  and Shor's reduction factors eight small semiprimes. Fermat's method breaks a
+  2048-bit key whose primes are too close together, and gives up on
+  well-separated ones.
 
 ## Security note
 
@@ -152,6 +154,11 @@ ML-DSA, SLH-DSA, FN-DSA, HQC), analysis methods and open problems.
 
 **Authors:** Gnanada (SE24UCAM003), Anusha (SE24UCAM006), Neharika (SE24UCAM018),
 Pearl Mendapara (SE24UCAM043), Harshil (SE24UCAM051), Dhruv (SE24UCAM068).
+
+## Contributors
+
+- [Pearl Mendapara](https://github.com/PearlMendapara)
+- [Harshil](https://github.com/Harshil1-0) — Fermat factorization attack and tests
 
 ## Author
 
